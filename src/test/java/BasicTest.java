@@ -1,3 +1,4 @@
+import com.estest.bean.Content;
 import com.estest.esBasic.ElasticSearchHandler;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
@@ -38,7 +39,40 @@ public class BasicTest {
     public void testDeteleIndexAdd() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         String re = esHandler.deleteIndexAdd("delete");
-        System.out.println("re:"+re);
+        System.out.println("re:" + re);
     }
 
+    @Test
+    public void testMapping() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.createIndexNull("maptest");
+        try {
+            esHandler.createMapping("maptest","type1");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testMappingContent() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.createIndexNull("maptestcontent");
+        try {
+
+            Content content1 = new Content();
+            content1.setField("name");
+            content1.setType("string");
+            content1.setIndex("not_analyzed");
+            esHandler.createMapping("maptestcontent", "book", content1);
+            Content content2 = new Content();
+            content2.setField("price");
+            content2.setType("long");
+            esHandler.createMapping("maptestcontent", "book", content2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.estest.esBasic;
 
+import com.estest.bean.Content;
 import com.estest.bean.Medicine;
 import com.estest.esDao.DataFactory;
 import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
@@ -106,6 +107,13 @@ public class ElasticSearchHandler {
     }
 
     /*
+     *创建空索引
+     */
+    public void createIndexNull(String index) {
+        client.admin().indices().prepareCreate(index).execute().actionGet();
+    }
+
+    /*
      * 通过ID删除记录
      */
     public DeleteResponse deleteIndexResponseById(String indexname, String type, String id) {
@@ -120,7 +128,7 @@ public class ElasticSearchHandler {
      */
     public void deleteIndex(String index) {
         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(index);
-        ActionFuture<DeleteIndexResponse> response =  client.admin().indices().delete(deleteIndexRequest);
+        ActionFuture<DeleteIndexResponse> response = client.admin().indices().delete(deleteIndexRequest);
     }
 
     public String deleteIndexAdd(String index) {
@@ -129,7 +137,6 @@ public class ElasticSearchHandler {
                 .execute().actionGet();
         return deleteIndexResponse.getHeaders().toString();
     }
-
 
 
     /**
@@ -178,31 +185,49 @@ public class ElasticSearchHandler {
 
     }
 
-    public void createMapping(String index,String type) throws IOException {
+    /*
+     *空索引设置mapping,index必须全部小写
+     */
+    public void createMapping(String index, String type) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder()
-            .startObject()
+                .startObject()
                 .startObject(type)
-                    .startObject("_all")
-                        .field("indexAnalyzer", "ik")
-                        .field("searchAnalyzer", "ik")
-                        .field("term_vector", "no")
-                        .field("store", "false")
-                    .endObject()
-                    .startObject("properties")
-                        .startObject("content")
-                            .field("type", "string")
-                            .field("store", "no")
-                            .field("term_vector", "with_positions_offsets")
-                            .field("indexAnalyzer", "ik")
-                            .field("searchAnalyzer", "ik")
-                            .field("include_in_all", "true")
-                            .field("boost", 9)
-                        .endObject()
-                    .endObject()
+                .startObject("properties")
+                .startObject("name").field("type", "string").field("index", "not_analyzed").endObject()
                 .endObject()
-            .endObject();
+                .endObject()
+                .endObject();
         PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
         client.admin().indices().putMapping(mapping).actionGet();
+    }
+
+    /*
+     *空索引设置mapping,index必须全部小写
+     */
+    public void createMapping(String index, String type, Content content) throws IOException {
+        if (null == content.getIndex()) {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .startObject(type)
+                    .startObject("properties")
+                    .startObject(content.getField()).field("type", content.getType()).endObject()
+                    .endObject()
+                    .endObject()
+                    .endObject();
+            PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
+            client.admin().indices().putMapping(mapping).actionGet();
+        } else {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .startObject(type)
+                    .startObject("properties")
+                    .startObject(content.getField()).field("type", content.getType()).field("index", content.getIndex()).endObject()
+                    .endObject()
+                    .endObject()
+                    .endObject();
+            PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
+            client.admin().indices().putMapping(mapping).actionGet();
+        }
     }
 
 
