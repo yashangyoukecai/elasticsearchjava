@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Set;
 
 /**
  * Created by wklmogujie on 16/1/7.
@@ -25,6 +26,19 @@ public class BasicTest {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         boolean response = esHandler.bulkAdd();
         System.out.println("BulkAdd result :" + response);
+    }
+
+    @Test
+    public void testDeteleIndex() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.deleteIndex("delete");
+    }
+
+    @Test
+    public void testDeteleIndexAdd() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        String re = esHandler.deleteIndexAdd("delete");
+        System.out.println("re:"+re);
     }
 
 }

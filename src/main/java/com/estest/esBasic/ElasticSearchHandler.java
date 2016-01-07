@@ -4,6 +4,10 @@ import com.estest.bean.Medicine;
 import com.estest.esDao.DataFactory;
 import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
 import org.apache.lucene.search.TermQuery;
+import org.elasticsearch.action.ActionFuture;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -11,9 +15,12 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -22,11 +29,13 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.shield.ShieldPlugin;
 import org.elasticsearch.shield.authc.support.SecuredString;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by wklmogujie on 16/1/4.
@@ -106,6 +115,21 @@ public class ElasticSearchHandler {
         return response;
     }
 
+    /*
+     * 删除整个索引
+     */
+    public void deleteIndex(String index) {
+        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(index);
+        ActionFuture<DeleteIndexResponse> response =  client.admin().indices().delete(deleteIndexRequest);
+    }
+
+    public String deleteIndexAdd(String index) {
+        DeleteIndexResponse deleteIndexResponse = client.admin().indices()
+                .prepareDelete(index)
+                .execute().actionGet();
+        return deleteIndexResponse.getContext().toString();
+    }
+
 
 
     /**
@@ -152,6 +176,33 @@ public class ElasticSearchHandler {
         BulkResponse bulkResponse = bulkRequest.execute().actionGet();
         return bulkResponse.hasFailures();
 
+    }
+
+    public void createMapping(String index,String type) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder()
+            .startObject()
+                .startObject(type)
+                .startObject("_all")
+                .field("indexAnalyzer", "ik")
+                .field("searchAnalyzer", "ik")
+                .field("term_vector", "no")
+                .field("store", "false")
+                .endObject()
+                .startObject("properties")
+                .startObject("content")
+                .field("type", "string")
+                .field("store", "no")
+                .field("term_vector", "with_positions_offsets")
+                .field("indexAnalyzer", "ik")
+                            .field("searchAnalyzer", "ik")
+                .field("include_in_all", "true")
+                .field("boost", 9)
+                        .endObject()
+                    .endObject()
+                .endObject()
+            .endObject();
+        PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
+        client.admin().indices().putMapping(mapping).actionGet();
     }
 
 
