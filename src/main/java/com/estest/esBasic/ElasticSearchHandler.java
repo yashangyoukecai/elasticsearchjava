@@ -83,7 +83,7 @@ public class ElasticSearchHandler {
      * @param jsondata  json格式的数据集合
      * @return
      */
-    public void createIndexResponse(String indexname, String type, List<String> jsondata) {
+    public void createIndexResponseByBean(String indexname, String type, List<String> jsondata) {
         //创建索引库 需要注意的是.setRefresh(true)这里一定要设置,否则第一次建立索引查找不到数据
         IndexRequestBuilder requestBuilder = client.prepareIndex(indexname, type).setRefresh(true);
         for (int i = 0; i < jsondata.size(); i++) {
@@ -227,24 +227,6 @@ public class ElasticSearchHandler {
                     .endObject();
             PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
             client.admin().indices().putMapping(mapping).actionGet();
-        }
-    }
-
-
-    public static void main(String[] args) {
-        ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        List<String> jsondata = DataFactory.getInitJsonData();
-        String indexname = "newindex_2";
-        String type = "shortType";
-//        esHandler.createIndexResponse(indexname, type, jsondata);
-        //查询条件
-//        QueryBuilder queryBuilder = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("name", "感冒灵颗粒"));
-        QueryBuilder queryBuilder = QueryBuilders.termQuery("name", "k");
-        QueryBuilder queryBuilderId = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("id", 1));
-        List<Medicine> result = esHandler.searcher(queryBuilder, indexname, type);
-        for (int i = 0; i < result.size(); i++) {
-            Medicine medicine = result.get(i);
-            System.out.println("(" + medicine.getId() + ")药品名称:" + medicine.getName() + "\t\t" + medicine.getFunction());
         }
     }
 }

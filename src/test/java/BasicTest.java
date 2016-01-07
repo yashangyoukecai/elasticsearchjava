@@ -1,20 +1,45 @@
 import com.estest.bean.Content;
+import com.estest.bean.Medicine;
 import com.estest.esBasic.ElasticSearchHandler;
+import com.estest.esDao.DataFactory;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Created by wklmogujie on 16/1/7.
  */
 public class BasicTest {
+    @Test
+    public void termQueryTest() {
+        //  must/and,   mustnot/<>,   should/or
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        List<String> jsondata = DataFactory.getInitJsonData();
+        String indexname = "newindex_2";
+        String type = "shortType";
+        esHandler.createIndexResponseByBean(indexname, type, jsondata);
+        //查询条件
+//        QueryBuilder queryBuilder = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("name", "感冒灵颗粒"));
+        QueryBuilder queryBuilder = QueryBuilders.termQuery("name", "k");
+        QueryBuilder queryBuilderId = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("id", 1));
+        List<Medicine> result = esHandler.searcher(queryBuilder, indexname, type);
+        for (int i = 0; i < result.size(); i++) {
+            Medicine medicine = result.get(i);
+            System.out.println("(" + medicine.getId() + ")药品名称:" + medicine.getName() + "\t\t" + medicine.getFunction());
+        }
+    }
+
     @Test
     public void TestDelete() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
@@ -59,7 +84,6 @@ public class BasicTest {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         esHandler.createIndexNull("maptestcontent");
         try {
-
             Content content1 = new Content();
             content1.setField("name");
             content1.setType("string");
