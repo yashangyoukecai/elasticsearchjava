@@ -20,4 +20,11 @@ public class BasicTest {
         System.out.println("delete result :" + response.isFound());
     }
 
+    @Test
+    public void TestBulkAdd() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        boolean response = esHandler.bulkAdd();
+        System.out.println("BulkAdd result :" + response);
+    }
+
 }

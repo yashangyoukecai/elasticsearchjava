@@ -4,6 +4,9 @@ import com.estest.bean.Medicine;
 import com.estest.esDao.DataFactory;
 import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
 import org.apache.lucene.search.TermQuery;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -22,6 +25,7 @@ import org.elasticsearch.shield.authc.support.SecuredString;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,16 +41,8 @@ public class ElasticSearchHandler {
     }
 
     public ElasticSearchHandler(String ipAddress) {
-        //集群连接超时设置
-        /*
-              Settings settings = ImmutableSettings.settingsBuilder().put("client.transport.ping_timeout", "10s").build();
-            client = new TransportClient(settings);
-         */
-
-//        client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(ipAddress, 9300));
-        String clusterName="elasticsearch";
+        String clusterName = "elasticsearch";
         Settings settings = Settings.settingsBuilder()
-
                 .put("cluster.name", clusterName)
                 .put("client.transport.ping_timeout", "10s")
 //                .put("shield.user", "tribe_user:tribe_user")
@@ -55,7 +51,7 @@ public class ElasticSearchHandler {
             client = TransportClient.builder()
 //                    .addPlugin(ShieldPlugin.class)
                     .settings(settings).build()
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ipAddress),9300));
+                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ipAddress), 9300));
 //            String token = basicAuthHeaderValue("tribe_user",
 //                    new SecuredString("tribe_user".toCharArray()));
 //
@@ -66,17 +62,21 @@ public class ElasticSearchHandler {
         }
     }
 
+    public void closeESClient() {
+        client.close();
+    }
+
     /**
      * 建立索引,索引建立好之后,会在elasticsearch-0.20.6\data\elasticsearch\nodes\0创建所以你看
-     * @param indexname  为索引库名，一个es集群中可以有多个索引库。 名称必须为小写
-     * @param jsondata     json格式的数据集合
      *
+     * @param indexname 为索引库名，一个es集群中可以有多个索引库。 名称必须为小写
+     * @param jsondata  json格式的数据集合
      * @return
      */
-    public void createIndexResponse(String indexname, String type, List<String> jsondata){
+    public void createIndexResponse(String indexname, String type, List<String> jsondata) {
         //创建索引库 需要注意的是.setRefresh(true)这里一定要设置,否则第一次建立索引查找不到数据
         IndexRequestBuilder requestBuilder = client.prepareIndex(indexname, type).setRefresh(true);
-        for(int i=0; i<jsondata.size(); i++){
+        for (int i = 0; i < jsondata.size(); i++) {
             requestBuilder.setSource(jsondata.get(i)).execute().actionGet();
         }
 
@@ -84,10 +84,11 @@ public class ElasticSearchHandler {
 
     /**
      * 创建索引
+     *
      * @param jsondata
      * @return
      */
-    public IndexResponse createIndexResponse(String indexname, String type,String jsondata){
+    public IndexResponse createIndexResponse(String indexname, String type, String jsondata) {
         IndexResponse response = client.prepareIndex(indexname, type)
                 .setSource(jsondata)
                 .execute()
@@ -95,14 +96,27 @@ public class ElasticSearchHandler {
         return response;
     }
 
+    /*
+     * 通过ID删除记录
+     */
+    public DeleteResponse deleteIndexResponseById(String indexname, String type, String id) {
+        DeleteResponse response = client.prepareDelete(indexname, type, id)
+                .execute()
+                .actionGet();
+        return response;
+    }
+
+
+
     /**
      * 执行搜索
+     *
      * @param queryBuilder
      * @param indexname
      * @param type
      * @return
      */
-    public List<Medicine>  searcher(QueryBuilder queryBuilder, String indexname, String type){
+    public List<Medicine> searcher(QueryBuilder queryBuilder, String indexname, String type) {
         List<Medicine> list = new ArrayList<Medicine>();
         SearchResponse searchResponse = client.prepareSearch(indexname).setTypes(type)
                 .setQuery(queryBuilder)
@@ -111,23 +125,34 @@ public class ElasticSearchHandler {
         SearchHits hits = searchResponse.getHits();
         System.out.println("查询到记录数=" + hits.getTotalHits());
         SearchHit[] searchHists = hits.getHits();
-        if(searchHists.length>0){
-            for(SearchHit hit:searchHists){
-                Integer id = (Integer)hit.getSource().get("id");
-                String name =  (String) hit.getSource().get("name");
-                String function =  (String) hit.getSource().get("funciton");
+        if (searchHists.length > 0) {
+            for (SearchHit hit : searchHists) {
+                Integer id = (Integer) hit.getSource().get("id");
+                String name = (String) hit.getSource().get("name");
+                String function = (String) hit.getSource().get("funciton");
                 list.add(new Medicine(id, name, function));
             }
         }
         return list;
     }
 
-    public void DeleteIndexByQuery() {
-//        MatchAllQueryBuilder allQueryBuilder = QueryBuilders.matchAllQuery();// 查询所有的documents
-//        // 现在把blog索引post类型的索引全部删除,由于用了QueryBuilders.matchAllQuery(),匹配所有blog post下的索引
-//        client.prepareDelete().setId()setQuery(allQueryBuilder).setTypes("post").execute().actionGet();
-    }
+    public boolean bulkAdd() {
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
 
+        bulkRequest.add(client.prepareIndex("blog", "article", "6")
+                        .setSource("{\"name\":\"寒霜\",\"age\":\"18\",\"nick\":\"寒姨\"}"
+                        )
+        );
+
+        bulkRequest.add(client.prepareIndex("blog", "article", "7")
+                        .setSource("{\"name\":\"烟客\",\"age\":\"18\",\"nick\":\"烟客\"}"
+                        )
+        );
+
+        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        return bulkResponse.hasFailures();
+
+    }
 
 
     public static void main(String[] args) {
@@ -141,9 +166,9 @@ public class ElasticSearchHandler {
         QueryBuilder queryBuilder = QueryBuilders.termQuery("name", "k");
         QueryBuilder queryBuilderId = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("id", 1));
         List<Medicine> result = esHandler.searcher(queryBuilder, indexname, type);
-        for(int i=0; i<result.size(); i++){
+        for (int i = 0; i < result.size(); i++) {
             Medicine medicine = result.get(i);
-            System.out.println("(" + medicine.getId() + ")药品名称:" +medicine.getName() + "\t\t" + medicine.getFunction());
+            System.out.println("(" + medicine.getId() + ")药品名称:" + medicine.getName() + "\t\t" + medicine.getFunction());
         }
     }
 }
