@@ -1,4 +1,4 @@
-import com.estest.bean.content;
+import com.estest.bean.Content;
 import com.estest.bean.Medicine;
 import com.estest.esBasic.ElasticSearchHandler;
 import com.estest.esDao.DataFactory;
@@ -76,12 +76,12 @@ public class BasicTest {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         esHandler.createIndexNull("maptestcontent");
         try {
-            content content1 = new content();
+            Content content1 = new Content();
             content1.setField("name");
             content1.setType("string");
             content1.setIndex("not_analyzed");
             esHandler.createMapping("maptestcontent", "book", content1);
-            content content2 = new content();
+            Content content2 = new Content();
             content2.setField("price");
             content2.setType("long");
             esHandler.createMapping("maptestcontent", "book", content2);
