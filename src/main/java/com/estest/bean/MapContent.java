@@ -3,7 +3,7 @@ package com.estest.bean;
 /**
  * Created by wklmogujie on 16/1/7.
  */
-public class content {
+public class MapContent {
     //字段名
     private String field;
     //字段类型

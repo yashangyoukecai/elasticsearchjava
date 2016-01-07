@@ -1,6 +1,6 @@
 package com.estest.esBasic;
 
-import com.estest.bean.Content;
+import com.estest.bean.MapContent;
 import com.estest.bean.Medicine;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -195,13 +195,13 @@ public class ElasticSearchHandler {
     /*
      *空索引设置mapping,index必须全部小写
      */
-    public void createMapping(String index, String type, Content Content) throws IOException {
-        if (null == Content.getIndex()) {
+    public void createMapping(String index, String type, MapContent MapContent) throws IOException {
+        if (null == MapContent.getIndex()) {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
                     .startObject(type)
                     .startObject("properties")
-                    .startObject(Content.getField()).field("type", Content.getType()).endObject()
+                    .startObject(MapContent.getField()).field("type", MapContent.getType()).endObject()
                     .endObject()
                     .endObject()
                     .endObject();
@@ -212,7 +212,7 @@ public class ElasticSearchHandler {
                     .startObject()
                     .startObject(type)
                     .startObject("properties")
-                    .startObject(Content.getField()).field("type", Content.getType()).field("index", Content.getIndex()).endObject()
+                    .startObject(MapContent.getField()).field("type", MapContent.getType()).field("index", MapContent.getIndex()).endObject()
                     .endObject()
                     .endObject()
                     .endObject();
