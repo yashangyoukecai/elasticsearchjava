@@ -1,10 +1,7 @@
 package com.estest.esBasic;
 
-import com.estest.bean.Content;
+import com.estest.bean.content;
 import com.estest.bean.Medicine;
-import com.estest.esDao.DataFactory;
-import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
-import org.apache.lucene.search.TermQuery;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
@@ -22,21 +19,15 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.shield.ShieldPlugin;
-import org.elasticsearch.shield.authc.support.SecuredString;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by wklmogujie on 16/1/4.
@@ -204,7 +195,7 @@ public class ElasticSearchHandler {
     /*
      *空索引设置mapping,index必须全部小写
      */
-    public void createMapping(String index, String type, Content content) throws IOException {
+    public void createMapping(String index, String type, content content) throws IOException {
         if (null == content.getIndex()) {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()

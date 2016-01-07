@@ -1,21 +1,13 @@
-import com.estest.bean.Content;
+import com.estest.bean.content;
 import com.estest.bean.Medicine;
 import com.estest.esBasic.ElasticSearchHandler;
 import com.estest.esDao.DataFactory;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by wklmogujie on 16/1/7.
@@ -84,12 +76,12 @@ public class BasicTest {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         esHandler.createIndexNull("maptestcontent");
         try {
-            Content content1 = new Content();
+            content content1 = new content();
             content1.setField("name");
             content1.setType("string");
             content1.setIndex("not_analyzed");
             esHandler.createMapping("maptestcontent", "book", content1);
-            Content content2 = new Content();
+            content content2 = new content();
             content2.setField("price");
             content2.setType("long");
             esHandler.createMapping("maptestcontent", "book", content2);
