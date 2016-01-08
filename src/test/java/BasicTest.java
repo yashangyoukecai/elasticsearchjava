@@ -2,6 +2,7 @@ import com.estest.bean.MapContent;
 import com.estest.bean.Medicine;
 import com.estest.esBasic.ElasticSearchHandler;
 import com.estest.esDao.DataFactory;
+import com.estest.tool.JsonUtil;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -11,6 +12,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +49,18 @@ public class BasicTest {
     @Test
     public void TestBulkAdd() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        boolean response = esHandler.bulkAdd();
+        String data1  = JsonUtil.obj2JsonData(new Medicine(21, "monkey", "houzi"));
+        String data2  = JsonUtil.obj2JsonData(new Medicine(22, "mouse", "laoshu"));
+        String data3  = JsonUtil.obj2JsonData(new Medicine(23, "tiger", "laohu"));
+        String data4  = JsonUtil.obj2JsonData(new Medicine(24, "snake", "she"));
+        String data5  = JsonUtil.obj2JsonData(new Medicine(25, "sheep", "yang"));
+        List<String> list = new ArrayList<String>();
+        list.add(data1);
+        list.add(data2);
+        list.add(data3);
+        list.add(data4);
+        list.add(data5);
+        boolean response = esHandler.bulkAdd("newindex", "shortType", list);
         System.out.println("BulkAdd result :" + response);
     }
 

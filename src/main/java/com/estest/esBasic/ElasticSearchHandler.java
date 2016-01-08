@@ -186,21 +186,16 @@ public class ElasticSearchHandler {
         return list;
     }
 
-    public boolean bulkAdd() {
+    public boolean bulkAdd(String index, String type, List<String> jsonDatas) {
         BulkRequestBuilder bulkRequest = client.prepareBulk();
 
-        bulkRequest.add(client.prepareIndex("blog", "article", "6")
-                        .setSource("{\"name\":\"寒霜\",\"age\":\"18\",\"nick\":\"寒姨\"}"
-                        )
-        );
-
-        bulkRequest.add(client.prepareIndex("blog", "article", "7")
-                        .setSource("{\"name\":\"烟客\",\"age\":\"18\",\"nick\":\"烟客\"}"
-                        )
-        );
+        for(String jsonData : jsonDatas) {
+            bulkRequest.add(client.prepareIndex(index, type).setSource(jsonData)
+            );
+        }
 
         BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-        return bulkResponse.hasFailures();
+        return !bulkResponse.hasFailures();
 
     }
 
