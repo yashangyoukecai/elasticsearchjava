@@ -131,4 +131,11 @@ public class BasicTest {
         }
         System.out.println("end");
     }
+
+    @Test
+    public void queryAlias() {
+        //alias查询到所有的alias相同的记录
+        ElasticSearchHandler elasticSearchHandler = new ElasticSearchHandler();
+        elasticSearchHandler.queryAll("map","type1");
+    }
 }

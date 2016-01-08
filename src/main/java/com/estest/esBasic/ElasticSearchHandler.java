@@ -258,8 +258,7 @@ public class ElasticSearchHandler {
                 .actionGet();
         SearchHits hits = searchResponse.getHits();
         System.out.println("查询到记录数=" + hits.getTotalHits());
-        SearchHit[] searchHists = hits.getHits();
-        return searchHists;
+        return hits.getHits();
     }
 
     public SearchHit[] queryAll(String index, String type) {
@@ -270,7 +269,6 @@ public class ElasticSearchHandler {
                 .actionGet();
         SearchHits hits = searchResponse.getHits();
         System.out.println("查询到记录数=" + hits.getTotalHits());
-        SearchHit[] searchHists = hits.getHits();
-        return searchHists;
+        return hits.getHits();
     }
 }
