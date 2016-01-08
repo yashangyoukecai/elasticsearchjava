@@ -134,7 +134,7 @@ public class BasicTest {
     public void trans() {
         //迁移index
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        SearchHit[] searchHists = esHandler.queryAll("maptest", "type1");
+        SearchHit[] searchHists = esHandler.queryAll("maptest", "type1", 100, -1);
         if(searchHists.length > 0) {
             for (SearchHit hit : searchHists) {
                 String re = (String) hit.getSource().get("type1");
@@ -149,6 +149,10 @@ public class BasicTest {
     public void queryAlias() {
         //alias查询到所有的alias相同的记录
         ElasticSearchHandler elasticSearchHandler = new ElasticSearchHandler();
-        elasticSearchHandler.queryAll("map","type1");
+        SearchHit[] searchHits = elasticSearchHandler.queryAll("map", "type1", 8, 5);
+        for (SearchHit hit : searchHits) {
+            String re = hit.getSource().toString();
+            System.out.println("record:"+re);
+        }
     }
 }

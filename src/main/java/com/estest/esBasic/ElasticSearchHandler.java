@@ -13,6 +13,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
@@ -245,10 +246,17 @@ public class ElasticSearchHandler {
     }
 
 
-    public SearchHit[] queryTerm(String index, String type, String field, String value) {
+    public SearchHit[] queryTerm(String index, String type, String field, String value, int size, int from) {
         QueryBuilder queryBuilder = QueryBuilders.termQuery(field, value);
-        SearchResponse searchResponse = client.prepareSearch(index).setTypes(type)
-                .setQuery(queryBuilder)
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index).setTypes(type)
+                .setQuery(queryBuilder);
+        if(size > 0) {
+            searchRequestBuilder = searchRequestBuilder.setSize(size);
+        }
+        if(from >= 0) {
+            searchRequestBuilder = searchRequestBuilder.setFrom(from);
+        }
+        SearchResponse searchResponse = searchRequestBuilder
                 .execute()
                 .actionGet();
         SearchHits hits = searchResponse.getHits();
@@ -256,14 +264,21 @@ public class ElasticSearchHandler {
         return hits.getHits();
     }
 
-    public SearchHit[] queryAll(String index, String type) {
+    public SearchHit[] queryAll(String index, String type, int size, int from) {
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        SearchResponse searchResponse = client.prepareSearch(index).setTypes(type)
-                .setQuery(queryBuilder)
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index).setTypes(type)
+                .setQuery(queryBuilder);
+        if(size > 0) {
+            searchRequestBuilder = searchRequestBuilder.setSize(size);
+        }
+        if(from >= 0) {
+            searchRequestBuilder = searchRequestBuilder.setFrom(from);
+        }
+        SearchResponse searchResponse = searchRequestBuilder
                 .execute()
                 .actionGet();
         SearchHits hits = searchResponse.getHits();
-        System.out.println("查询到记录数=" + hits.getTotalHits());
+        System.out.println("查询到记录数=" + hits.getHits().length + ",总共数量" + hits.getTotalHits());
         return hits.getHits();
     }
 }
