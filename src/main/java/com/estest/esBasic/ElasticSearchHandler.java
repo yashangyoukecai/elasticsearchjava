@@ -177,7 +177,7 @@ public class ElasticSearchHandler {
     }
 
     /*
-     *空索引设置mapping,index必须全部小写
+     *空索引设置mapping,index必须全部小写,map一旦设置不能修改
      */
     public void createMapping(String index, String type) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder()
@@ -193,7 +193,7 @@ public class ElasticSearchHandler {
     }
 
     /*
-     *空索引设置mapping,index必须全部小写
+     *空索引设置mapping,index必须全部小写,map一旦设置不能修改
      */
     public void createMapping(String index, String type, MapContent MapContent) throws IOException {
         if (null == MapContent.getIndex()) {
