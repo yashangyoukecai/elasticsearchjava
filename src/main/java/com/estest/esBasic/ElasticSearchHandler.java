@@ -24,6 +24,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -246,5 +247,30 @@ public class ElasticSearchHandler {
             PutMappingRequest mapping = Requests.putMappingRequest(index).type(type).source(builder);
             client.admin().indices().putMapping(mapping).actionGet();
         }
+    }
+
+
+    public SearchHit[] queryTerm(String index, String type, String field, String value) {
+        QueryBuilder queryBuilder = QueryBuilders.termQuery(field, value);
+        SearchResponse searchResponse = client.prepareSearch(index).setTypes(type)
+                .setQuery(queryBuilder)
+                .execute()
+                .actionGet();
+        SearchHits hits = searchResponse.getHits();
+        System.out.println("查询到记录数=" + hits.getTotalHits());
+        SearchHit[] searchHists = hits.getHits();
+        return searchHists;
+    }
+
+    public SearchHit[] queryAll(String index, String type) {
+        QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
+        SearchResponse searchResponse = client.prepareSearch(index).setTypes(type)
+                .setQuery(queryBuilder)
+                .execute()
+                .actionGet();
+        SearchHits hits = searchResponse.getHits();
+        System.out.println("查询到记录数=" + hits.getTotalHits());
+        SearchHit[] searchHists = hits.getHits();
+        return searchHists;
     }
 }

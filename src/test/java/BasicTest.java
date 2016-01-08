@@ -4,9 +4,11 @@ import com.estest.esBasic.ElasticSearchHandler;
 import com.estest.esDao.DataFactory;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 
 import java.util.List;
@@ -106,12 +108,27 @@ public class BasicTest {
     @Test
     public void testAddAlias() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        esHandler.addAlias("maptest", "maptest_v2");
+        esHandler.addAlias("maptest_v1", "map");
     }
 
     @Test
     public void testRemoveAlias() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        esHandler.removeAlias("maptest", "maptest_v1");
+        esHandler.removeAlias("maptest", "maptest_v2");
+    }
+
+    @Test
+    public void trans() {
+        //迁移index
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        SearchHit[] searchHists = esHandler.queryAll("maptest", "type1");
+        if(searchHists.length > 0) {
+            for (SearchHit hit : searchHists) {
+                String re = (String) hit.getSource().get("type1");
+                String jsonString = "{\"type1\":\""+ re +"\"}";
+                esHandler.createIndexResponse("maptest_v1", "type1", jsonString);
+            }
+        }
+        System.out.println("end");
     }
 }
