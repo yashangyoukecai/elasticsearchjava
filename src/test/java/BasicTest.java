@@ -2,12 +2,15 @@ import com.estest.bean.MapContent;
 import com.estest.bean.Medicine;
 import com.estest.esBasic.ElasticSearchHandler;
 import com.estest.esDao.DataFactory;
+import com.google.common.collect.Maps;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wklmogujie on 16/1/7.
@@ -35,7 +38,7 @@ public class BasicTest {
     @Test
     public void TestDelete() {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
-        DeleteResponse response = esHandler.deleteIndexResponseById("blog","article","AVIWM_MvOcGLzJiDqIyK");
+        DeleteResponse response = esHandler.deleteIndexResponseById("blog", "article", "AVIWM_MvOcGLzJiDqIyK");
         System.out.println("delete result :" + response.isFound());
     }
 
@@ -90,5 +93,13 @@ public class BasicTest {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void testUpdate() {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("type1", "未闻");
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.updateIndexRecord("maptest", "type1", "2", params);
     }
 }

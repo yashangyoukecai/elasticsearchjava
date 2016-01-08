@@ -2,6 +2,7 @@ package com.estest.esBasic;
 
 import com.estest.bean.MapContent;
 import com.estest.bean.Medicine;
+import com.google.common.collect.Maps;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
@@ -12,6 +13,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
@@ -19,6 +21,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -28,6 +31,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wklmogujie on 16/1/4.
@@ -112,6 +116,14 @@ public class ElasticSearchHandler {
                 .execute()
                 .actionGet();
         return response;
+    }
+
+    /*
+    *更新记录
+     */
+    public void updateIndexRecord(String index, String type, String id, Map<String, Object> params) {
+        UpdateResponse response = client.prepareUpdate(index, type, id).setDoc(params)
+                .execute().actionGet();
     }
 
     /*
