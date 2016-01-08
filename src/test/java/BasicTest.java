@@ -102,4 +102,16 @@ public class BasicTest {
         ElasticSearchHandler esHandler = new ElasticSearchHandler();
         esHandler.updateIndexRecord("maptest", "type1", "2", params);
     }
+
+    @Test
+    public void testAddAlias() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.addAlias("maptest", "maptest_v2");
+    }
+
+    @Test
+    public void testRemoveAlias() {
+        ElasticSearchHandler esHandler = new ElasticSearchHandler();
+        esHandler.removeAlias("maptest", "maptest_v1");
+    }
 }

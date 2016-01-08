@@ -4,6 +4,7 @@ import com.estest.bean.MapContent;
 import com.estest.bean.Medicine;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.ActionFuture;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
@@ -139,6 +140,20 @@ public class ElasticSearchHandler {
                 .prepareDelete(index)
                 .execute().actionGet();
         return deleteIndexResponse.getHeaders().toString();
+    }
+
+    public void addAlias(String index, String alias) {
+        IndicesAliasesResponse response = client.admin().indices()
+                .prepareAliases()
+                .addAlias(index, alias)
+                .execute().actionGet();
+    }
+
+    public void removeAlias(String index, String alias) {
+        IndicesAliasesResponse response = client.admin().indices()
+                .prepareAliases()
+                .removeAlias(index, alias)
+                .execute().actionGet();
     }
 
 
